@@ -48,6 +48,9 @@ const layout = {
 };
 let count = 0;
 let capscount = 1;
+let keybordLayout = ['eng', 'reg'];
+const keyPressAudio = new Audio('./assets/audio/press-key.mp3');
+keyPressAudio.playbackRate = 2;
 let keybordChangingLines = {
   'first': `<div class="changing-btn line__btn"></div>
             <div class="changing-btn line__btn"></div>
@@ -101,8 +104,8 @@ let keybordChangingLines = {
 document.onclick = function (event) {
   if (event.target.classList.contains('line__btn')) document.querySelector('.input-text').focus()
 }
-document.addEventListener('beforeunload', setLocalStorage);
-document.addEventListener('load', getLocalStorage);
+window.addEventListener('beforeunload', setLocalStorage);
+window.addEventListener('load', getLocalStorage);
 document.addEventListener('keyup', function(event) {
   if (event.key === 'Shift') {
     putLetters(count % 2 === 0 ? 'eng' : 'ru', capscount % 2  === 0 ? 'caps' : 'reg');
@@ -110,7 +113,6 @@ document.addEventListener('keyup', function(event) {
   if (event.key !== 'CapsLock') unselectBtn(event.code)
   else if (capscount % 2 !== 0) unselectBtn(event.code)
 });
-
 
 document.addEventListener('keydown', function(event) {
   TEXT_AREA.focus();
@@ -127,23 +129,27 @@ document.addEventListener('keydown', function(event) {
   };
   if (event.key === 'Tab') {
     event.preventDefault();
-    TEXT_AREA.value += '     ';
+    TEXT_AREA.value += '\t';
   };
   if (event.key === 'Backspace') {
-    const pos = TEXT_AREA.selectionStart;
-    if (TEXT_AREA.selectionStart === TEXT_AREA.value.length) {
-      TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart - 1);
-      TEXT_AREA.selectionEnd = pos;
-    } else if (TEXT_AREA.selectionStart !== 0) {
-      TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart - 1) + TEXT_AREA.value.slice(TEXT_AREA.selectionStart);
-      TEXT_AREA.selectionEnd = pos - 1;
+    if (!event.isTrusted) {
+      const pos = TEXT_AREA.selectionStart;
+      if (TEXT_AREA.selectionStart === TEXT_AREA.value.length) {
+        TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart - 1);
+        TEXT_AREA.selectionEnd = pos;
+      } else if (TEXT_AREA.selectionStart !== 0) {
+        TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart - 1) + TEXT_AREA.value.slice(TEXT_AREA.selectionStart);
+        TEXT_AREA.selectionEnd = pos - 1;
+      }
     }
   };
   if (event.key === 'Delete') {
-    const pos = TEXT_AREA.selectionStart;
-    if (TEXT_AREA.selectionStart !== TEXT_AREA.value.length) {
-      TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart) + TEXT_AREA.value.slice(TEXT_AREA.selectionStart + 1);
-      TEXT_AREA.selectionEnd = pos;
+    if (!event.isTrusted) {
+      const pos = TEXT_AREA.selectionStart;
+      if (TEXT_AREA.selectionStart !== TEXT_AREA.value.length) {
+        TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart) + TEXT_AREA.value.slice(TEXT_AREA.selectionStart + 1);
+        TEXT_AREA.selectionEnd = pos;
+      }
     }
   };
   if (event.key === 'ArrowLeft' && !event.isTrusted) {
@@ -155,7 +161,7 @@ document.addEventListener('keydown', function(event) {
   if (event.key === 'ArrowUp' && !event.isTrusted) {
     if (TEXT_AREA.selectionStart > 0) {
       TEXT_AREA.selectionEnd -= Math.floor(TEXT_AREA.value.length / TEXT_AREA.value.split('').filter((val) => val === '\n').length)
-      //TEXT_AREA.selectionEnd -= TEXT_AREA.value.indexOf('\n') !== -1 ? 
+      //TEXT_AREA.selectionEnd -= TEXT_AREA.value.indexOf('\n') !== -1 ?
     }
   };
   if (event.key === 'ArrowDown' && !event.isTrusted) {
@@ -166,18 +172,26 @@ document.addEventListener('keydown', function(event) {
 });
 
 function setLocalStorage() {
-  localStorage.setItem('layout', curLang);
-  console.log(2)
+  localStorage.setItem('lang', keybordLayout[0]);
+  localStorage.setItem('layout', keybordLayout[1])
 }
 
 function getLocalStorage() {
-  localStorage.getItem('layout');
-  console.log(localStorage.getItem('layout'))
+  if (!!localStorage.getItem('lang')) {
+    putLetters(localStorage.getItem('lang'), localStorage.getItem('layout'));
+    if (localStorage.getItem('layout') === 'caps') {
+      selectBtn('CapsLock');
+      capscount++
+    }
+  } else putLetters()
 }
 
 const TEXT_CONTAINER = document.createElement('div');
 const CONTAINER = document.createElement('div');
 const TEXT_AREA = document.createElement('textarea');
+const HELP_CONT = document.createElement('button');
+const INFO_CONT = document.createElement('div');
+
 TEXT_CONTAINER.classList.add('main-container');
 CONTAINER.classList.add('keybord-container');
 CONTAINER.innerHTML = `<div class="first-line keybord-line">
@@ -246,27 +260,31 @@ CONTAINER.innerHTML = `<div class="first-line keybord-line">
                          </div>
                        </div>`;
 TEXT_AREA.classList.add('input-text');
+HELP_CONT.classList.add('help-cont');
+INFO_CONT.classList.add('info-cont');
+INFO_CONT.innerHTML = `<span>The keyboard was created in the Windows OS</span><span>Change language: Ctrl + Shift</span>`
 
 document.body.prepend(CONTAINER);
 document.body.prepend(TEXT_CONTAINER);
 TEXT_CONTAINER.prepend(TEXT_AREA);
-
-
-
-TEXT_AREA.addEventListener('input', () => console.log(TEXT_AREA.selectionStart, TEXT_AREA.value.length))
+CONTAINER.append(HELP_CONT);
 
 CONTAINER.addEventListener('mousedown', (ev) => {
   TEXT_AREA.focus();
   if (ev.target.getAttribute('code')) {
+    keyPressAudio.play();
     selectBtn(ev.target.getAttribute('code'));
     if (ev.target.classList.contains('changing-btn')) {
       TEXT_AREA.value += ev.target.innerHTML;
     } else if (ev.target.classList.contains('keySpace')) {
-      TEXT_AREA.value += ' ';
+      const pos = TEXT_AREA.selectionStart + 1;
+      TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart) + ' ' + TEXT_AREA.value.slice(TEXT_AREA.selectionStart);
+      TEXT_AREA.selectionStart = pos;
+      TEXT_AREA.selectionEnd = pos;
     } else if (ev.target.classList.contains('keyEnter')) {
       TEXT_AREA.value += '\n';
     } else if (ev.target.classList.contains('keyTab')) {
-      TEXT_AREA.value += '     ';
+      TEXT_AREA.value += '\t';
     } else if (ev.target.classList.contains('keyBackspace')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Backspace',
@@ -350,6 +368,7 @@ CONTAINER.addEventListener('mouseup', (ev) => {
     }))
   }
 })
+HELP_CONT.addEventListener('click', showInfo)
 
 function putLetters (lang = 'eng', lay = 'reg') {
   const curLayout = layout[lang][lay];
@@ -359,6 +378,7 @@ function putLetters (lang = 'eng', lay = 'reg') {
   document.querySelectorAll('.line__btn').forEach((btn, ind) => {
     btn.setAttribute('code', layout.code[ind]);
   })
+  keybordLayout = [lang, lay]
 }
 
 function selectBtn(btn) {
@@ -373,4 +393,11 @@ function unselectBtn(btn) {
   });
 }
 
-putLetters()
+function showInfo() {
+  CONTAINER.append(INFO_CONT);
+  HELP_CONT.classList.add('rotate');
+  setTimeout(() => {
+    document.body.querySelector('.info-cont').remove();
+    HELP_CONT.classList.remove('rotate');
+  }, 3000)
+}

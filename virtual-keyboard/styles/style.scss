@@ -1,6 +1,6 @@
 body .main-container {
   max-width: 826px;
-  margin: 180px auto 70px auto;
+  margin: 20vh auto 10vh auto;
 }
 body .main-container .input-text {
   appearance: none;
@@ -14,6 +14,10 @@ body .main-container .input-text {
   font-style: normal;
   font-size: 1.2em;
   font-weight: 400;
+}
+body .main-container .input-text:focus {
+  outline: none;
+  border-bottom: 1.5px solid brown;
 }
 body .keybord-container {
   max-width: 800px;
@@ -91,4 +95,44 @@ body .keybord-container .keybord-line .keyArrowDown {
 }
 body .keybord-container .keybord-line .keyDel {
   width: 53px;
+}
+body .help-cont {
+  position: absolute;
+  top: 50px;
+  right: 50px;
+  width: 50px;
+  height: 50px;
+  border: 1px solid brown;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform ease-in-out 0.3s;
+}
+body .help-cont:hover {
+  border: 2px solid brown;
+}
+body .help-cont::after {
+  content: "?";
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-size: 3em;
+  font-weight: 400;
+}
+body .rotate {
+  transform: rotate(180deg);
+  transition: all ease-in-out 0.3s;
+}
+body .info-cont {
+  position: absolute;
+  width: 350px;
+  left: calc(50% - 175px);
+  bottom: 10px;
+  text-align: center;
+}
+body .info-cont > span {
+  display: block;
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1.4em;
 }
