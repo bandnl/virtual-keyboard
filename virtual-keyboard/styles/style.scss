@@ -1,10 +1,24 @@
-body {
-  max-width: 800px;
-  margin: 0 auto;
+body .main-container {
+  max-width: 826px;
+  margin: 180px auto 70px auto;
+}
+body .main-container .input-text {
+  appearance: none;
+  max-width: 816px;
+  width: 100%;
+  min-height: 150px;
+  margin: 5px;
+  border: none;
+  border-bottom: 0.3px solid black;
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-size: 1.2em;
+  font-weight: 400;
 }
 body .keybord-container {
-  width: 100%;
-  margin: auto 0;
+  max-width: 800px;
+  height: max-content;
+  margin: auto;
   border: 3px solid brown;
   border-radius: 10px;
   padding: 5px;
@@ -12,21 +26,31 @@ body .keybord-container {
 body .keybord-container .keybord-line {
   display: flex;
   justify-content: space-between;
+  height: max-content;
+  align-items: center;
 }
 body .keybord-container .keybord-line .line__btn {
   display: inline-block;
   border: 2px solid #000;
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-size: 1.1em;
+  font-weight: 400;
   border-radius: 5px;
-  width: 42px;
-  height: 42px;
+  width: 45px;
+  height: 45px;
   margin: 2px;
-  line-height: 42px;
+  line-height: 45px;
   text-align: center;
   box-sizing: border-box;
+  user-select: none;
+}
+body .keybord-container .keybord-line .btn_active {
+  background-color: #1E90FF;
 }
 body .keybord-container .keybord-line .keyBackspace,
 body .keybord-container .keybord-line .keyCapsLock {
-  width: 84px;
+  width: 94px;
 }
 body .keybord-container .keybord-line .keyTab {
   width: 73px;
@@ -45,25 +69,26 @@ body .keybord-container .keybord-line .keyRShift {
 }
 body .keybord-container .keybord-line .keyEnter,
 body .keybord-container .keybord-line .keyLShift {
-  width: 95px;
+  width: 115px;
 }
 body .keybord-container .keybord-line .keyRShift {
-  width: 106px;
+  width: 146px;
 }
 body .keybord-container .keybord-line .keyArrowGroup {
   display: inline-block;
-  width: 42px;
-  height: 42px;
-  margin: 1px;
+  width: 45px;
+  margin: 2px;
 }
 body .keybord-container .keybord-line .keySpace {
   flex-grow: 1;
 }
-body .keybord-container .keybord-line .keyArrowTop,
-body .keybord-container .keybord-line .keyArrowBottom {
+body .keybord-container .keybord-line .keyArrowUp,
+body .keybord-container .keybord-line .keyArrowDown {
   display: block;
   width: 100%;
-  height: 21.5px;
-  line-height: 21.5px;
-  box-sizing: border-box;
+  height: 24.5px;
+  line-height: 24.5px;
+}
+body .keybord-container .keybord-line .keyDel {
+  width: 53px;
 }
