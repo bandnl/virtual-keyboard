@@ -1,0 +1,6 @@
+@mixin fontProperties($size, $weight: 400) {
+  font-family: 'Fira Sans';
+  font-style: normal;
+  font-size: $size;
+  font-weight: $weight;
+}
