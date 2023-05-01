@@ -51,7 +51,7 @@ let capscount = 1;
 let keybordLayout = ['eng', 'reg'];
 const keyPressAudio = new Audio('./assets/audio/press-key.mp3');
 keyPressAudio.playbackRate = 2;
-keyPressAudio.play()
+keyPressAudio.play();
 let keybordChangingLines = {
   'first': `<div class="changing-btn line__btn"></div>
             <div class="changing-btn line__btn"></div>
@@ -100,29 +100,37 @@ let keybordChangingLines = {
             <div class="changing-btn line__btn"></div>
             <div class="changing-btn line__btn"></div>
             <div class="changing-btn line__btn"></div>`,
-}
+};
 
 document.onclick = function (event) {
-  if (event.target.classList.contains('line__btn')) document.querySelector('.input-text').focus()
-}
+  if (event.target.classList.contains('line__btn')) document.querySelector('.input-text').focus();
+};
 window.addEventListener('beforeunload', setLocalStorage);
 window.addEventListener('load', getLocalStorage);
 document.addEventListener('keyup', function(event) {
   if (document.querySelector(`[code="${event.code}"]`)) {
-    removeButtonAnimation(document.querySelector(`[code="${event.code}"]`))
+    removeButtonAnimation(document.querySelector(`[code="${event.code}"]`));
   }
   if (event.key === 'Shift') {
     putLetters(count % 2 === 0 ? 'eng' : 'ru', capscount % 2  === 0 ? 'caps' : 'reg');
   }
-  if (event.key !== 'CapsLock') unselectBtn(event.code)
-  else if (capscount % 2 !== 0) unselectBtn(event.code)
+  if (event.key !== 'CapsLock') unselectBtn(event.code);
+  else if (capscount % 2 !== 0) unselectBtn(event.code);
 });
 
 document.addEventListener('keydown', function(event) {
-  console.log(event)
+  console.log(event);
   if (document.querySelector(`[code="${event.code}"]`)) {
     TEXT_AREA.focus();
-    addButtonAnimation(document.querySelector(`[code="${event.code}"]`))
+    addButtonAnimation(document.querySelector(`[code="${event.code}"]`));
+
+    if (document.querySelector(`[code="${event.code}"]`).classList.contains('changing-btn') && !event.ctrlKey && !event.altKey) {
+      event.preventDefault();
+      const pos = TEXT_AREA.selectionStart + 1;
+      TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart) + document.querySelector(`[code="${event.code}"]`).innerHTML + TEXT_AREA.value.slice(TEXT_AREA.selectionStart);
+      TEXT_AREA.selectionStart = pos;
+      TEXT_AREA.selectionEnd = pos;
+    }
   }
   if (event.ctrlKey && event.shiftKey) {
     putLetters(count % 2 === 0 ? 'eng' : 'ru', capscount % 2  === 0 ? 'caps' : 'reg');
@@ -161,25 +169,40 @@ document.addEventListener('keydown', function(event) {
     }
   }
   if (event.key === 'ArrowLeft' && !event.isTrusted) {
-    TEXT_AREA.selectionEnd = TEXT_AREA.selectionStart > 0 ? TEXT_AREA.selectionEnd - 1 : 0
+    TEXT_AREA.selectionEnd = TEXT_AREA.selectionStart > 0 ? TEXT_AREA.selectionEnd - 1 : 0;
   }
   if (event.key === 'ArrowRight' && !event.isTrusted) {
-    TEXT_AREA.selectionStart = TEXT_AREA.selectionStart + 1
+    TEXT_AREA.selectionStart = TEXT_AREA.selectionStart + 1;
   }
   if (event.key === 'ArrowUp' && !event.isTrusted) {
     if (TEXT_AREA.selectionStart > 0) {
-      TEXT_AREA.selectionEnd -= Math.floor(TEXT_AREA.value.length / TEXT_AREA.value.split('').filter((val) => val === '\n').length);
+      /* TEXT_AREA.selectionEnd -= Math.floor(TEXT_AREA.value.length / (TEXT_AREA.value.split('').filter((val) => val === '\n').length || 1));
+      console.log(Math.floor(TEXT_AREA.value.length / (TEXT_AREA.value.split('').filter((val) => val === '\n').length || 1))) */
+      const pos = TEXT_AREA.selectionStart + 1;
+      TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart) + '↑' + TEXT_AREA.value.slice(TEXT_AREA.selectionStart);
+      TEXT_AREA.selectionStart = pos;
+      TEXT_AREA.selectionEnd = pos;
     }
   }
   if (event.key === 'ArrowDown' && !event.isTrusted) {
-    TEXT_AREA.selectionStart += Math.floor(TEXT_AREA.value.length / TEXT_AREA.value.split('').filter((val) => val === '\n').length);
+    //TEXT_AREA.selectionStart += Math.floor(TEXT_AREA.value.length / TEXT_AREA.value.split('').filter((val) => val === '\n').length);
+
+    /* const wrapPos = TEXT_AREA.value.indexOf('\n', TEXT_AREA.selectionStart);
+    const curPos = TEXT_AREA.selectionStart;
+    TEXT_AREA.selectionStart = wrapPos + (wrapPos + wrapPos - curPos > TEXT_AREA.value.indexOf('\n', wrapPos + 1) ? 1 : wrapPos - curPos);
+    console.log(TEXT_AREA.rows) */
+
+    const pos = TEXT_AREA.selectionStart + 1;
+      TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart) + '↓' + TEXT_AREA.value.slice(TEXT_AREA.selectionStart);
+      TEXT_AREA.selectionStart = pos;
+      TEXT_AREA.selectionEnd = pos;
   }
   selectBtn(event.code);
 });
 
 function setLocalStorage() {
   localStorage.setItem('lang', keybordLayout[0]);
-  localStorage.setItem('layout', keybordLayout[1])
+  localStorage.setItem('layout', keybordLayout[1]);
 }
 
 function getLocalStorage() {
@@ -187,9 +210,9 @@ function getLocalStorage() {
     putLetters(localStorage.getItem('lang'), localStorage.getItem('layout'));
     if (localStorage.getItem('layout') === 'caps') {
       selectBtn('CapsLock');
-      capscount++
+      capscount++;
     }
-  } else putLetters()
+  } else putLetters();
 }
 
 const TEXT_CONTAINER = document.createElement('div');
@@ -268,7 +291,7 @@ CONTAINER.innerHTML = `<div class="first-line keybord-line">
 TEXT_AREA.classList.add('input-text');
 HELP_CONT.classList.add('help-cont');
 INFO_CONT.classList.add('info-cont');
-INFO_CONT.innerHTML = `<span>The keyboard was created in the Windows OS</span><span>Change language: Ctrl + Shift</span>`
+INFO_CONT.innerHTML = `<span>The keyboard was created in the Windows OS</span><span>Change language: Ctrl + Shift</span>`;
 
 document.body.prepend(CONTAINER);
 document.body.prepend(TEXT_CONTAINER);
@@ -282,7 +305,10 @@ CONTAINER.addEventListener('mousedown', (ev) => {
     selectBtn(ev.target.getAttribute('code'));
     addButtonAnimation(ev.target);
     if (ev.target.classList.contains('changing-btn')) {
-      TEXT_AREA.value += ev.target.innerHTML;
+      const pos = TEXT_AREA.selectionStart + 1;
+      TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart) + ev.target.innerHTML + TEXT_AREA.value.slice(TEXT_AREA.selectionStart);
+      TEXT_AREA.selectionStart = pos;
+      TEXT_AREA.selectionEnd = pos;
     } else if (ev.target.classList.contains('keySpace')) {
       const pos = TEXT_AREA.selectionStart + 1;
       TEXT_AREA.value = TEXT_AREA.value.slice(0, TEXT_AREA.selectionStart) + ' ' + TEXT_AREA.value.slice(TEXT_AREA.selectionStart);
@@ -295,52 +321,52 @@ CONTAINER.addEventListener('mousedown', (ev) => {
     } else if (ev.target.classList.contains('keyBackspace')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Backspace',
-      }))
+      }));
     } else if (ev.target.classList.contains('keyDel')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Delete',
-      }))
+      }));
     } else if (ev.target.classList.contains('keyShift')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Shift',
         shiftKey: true
-      }))
+      }));
     } else if (ev.target.classList.contains('keyControl')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Control',
         ctrlKey: true
-      }))
+      }));
     } else if (ev.target.classList.contains('keyAlt')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Alt',
         altKey: true
-      }))
+      }));
     } else if (ev.target.classList.contains('keyCapsLock')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'CapsLock',
         code: 'CapsLock',
-      }))
+      }));
     } else if (ev.target.classList.contains('keyWin')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'Meta',
         metaKey: true
-      }))
+      }));
     } else if (ev.target.classList.contains('keyArrowLeft')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'ArrowLeft',
-      }))
+      }));
     } else if (ev.target.classList.contains('keyArrowUp')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'ArrowUp',
-      }))
+      }));
     } else if (ev.target.classList.contains('keyArrowDown')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'ArrowDown',
-      }))
+      }));
     } else if (ev.target.classList.contains('keyArrowRight')) {
       document.dispatchEvent(new KeyboardEvent('keydown', {
         key: 'ArrowRight',
-      }))
+      }));
     }
   }
 });
@@ -353,40 +379,40 @@ CONTAINER.addEventListener('mouseup', (ev) => {
     document.dispatchEvent(new KeyboardEvent('keyup', {
       key: 'Shift',
       shiftKey: false
-    }))
+    }));
   } else if (ev.target.classList.contains('keyControl')) {
     document.dispatchEvent(new KeyboardEvent('keyup', {
       key: 'Control',
       ctrlKey: false
-    }))
+    }));
   } else if (ev.target.classList.contains('keyAlt')) {
     document.dispatchEvent(new KeyboardEvent('keyup', {
       key: 'Alt',
       altKey: false
-    }))
+    }));
   } else if (ev.target.classList.contains('keyCapsLock')) {
     document.dispatchEvent(new KeyboardEvent('keyup', {
       key: 'CapsLock',
       code: 'CapsLock',
-    }))
+    }));
   } else if (ev.target.classList.contains('keyWin')) {
     document.dispatchEvent(new KeyboardEvent('keyup', {
       key: 'Meta',
       metaKey: false
-    }))
+    }));
   }
-})
-HELP_CONT.addEventListener('click', showInfo)
+});
+HELP_CONT.addEventListener('click', showInfo);
 
 function putLetters (lang = 'eng', lay = 'reg') {
   const curLayout = layout[lang][lay];
   document.querySelectorAll('.changing-btn').forEach((btn, ind) => {
     btn.innerHTML = String.fromCharCode(curLayout[ind]);
-  })
+  });
   document.querySelectorAll('.line__btn').forEach((btn, ind) => {
     btn.setAttribute('code', layout.code[ind]);
-  })
-  keybordLayout = [lang, lay]
+  });
+  keybordLayout = [lang, lay];
 }
 
 function selectBtn(btn) {
@@ -407,17 +433,17 @@ function showInfo() {
   setTimeout(() => {
     document.body.querySelector('.info-cont').remove();
     HELP_CONT.classList.remove('rotate');
-  }, 3000)
+  }, 3000);
 }
 
 function addButtonAnimation(btn) {
   if (btn.classList.contains('line__btn')) {
-    btn.classList.add('btn_animate')
+    btn.classList.add('btn_animate');
   }
 }
 
 function removeButtonAnimation(btn) {
   if (btn.classList.contains('line__btn')) {
-    btn.classList.remove('btn_animate')
+    btn.classList.remove('btn_animate');
   }
 }
