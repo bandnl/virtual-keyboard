@@ -1,6 +1,26 @@
 @import 'mixins';
 @import 'variebles';
 
+@keyframes btnAnimation {
+  0% {
+    border: 2px solid #000;
+    line-height: 45px;
+  }
+  100% {
+    border: 4px solid #000;
+    line-height: 43px;
+  }
+}
+
+@keyframes infoAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 body {
   .main-container {
     max-width: 826px;
@@ -53,6 +73,10 @@ body {
 
       .btn_active {
         background-color: #1E90FF;
+      }
+
+      .btn_animate {
+        animation: btnAnimation ease forwards 200ms;
       }
 
       .keyBackspace,
@@ -143,6 +167,7 @@ body {
     left: calc(50% - 175px);
     bottom: 10px;
     text-align: center;
+    animation: infoAnimation linear forwards 700ms;
 
     & > span {
       display: block;

@@ -51,6 +51,7 @@ let capscount = 1;
 let keybordLayout = ['eng', 'reg'];
 const keyPressAudio = new Audio('./assets/audio/press-key.mp3');
 keyPressAudio.playbackRate = 2;
+keyPressAudio.play()
 let keybordChangingLines = {
   'first': `<div class="changing-btn line__btn"></div>
             <div class="changing-btn line__btn"></div>
@@ -107,30 +108,37 @@ document.onclick = function (event) {
 window.addEventListener('beforeunload', setLocalStorage);
 window.addEventListener('load', getLocalStorage);
 document.addEventListener('keyup', function(event) {
+  if (document.querySelector(`[code="${event.code}"]`)) {
+    removeButtonAnimation(document.querySelector(`[code="${event.code}"]`))
+  }
   if (event.key === 'Shift') {
     putLetters(count % 2 === 0 ? 'eng' : 'ru', capscount % 2  === 0 ? 'caps' : 'reg');
-  };
+  }
   if (event.key !== 'CapsLock') unselectBtn(event.code)
   else if (capscount % 2 !== 0) unselectBtn(event.code)
 });
 
 document.addEventListener('keydown', function(event) {
-  TEXT_AREA.focus();
+  console.log(event)
+  if (document.querySelector(`[code="${event.code}"]`)) {
+    TEXT_AREA.focus();
+    addButtonAnimation(document.querySelector(`[code="${event.code}"]`))
+  }
   if (event.ctrlKey && event.shiftKey) {
     putLetters(count % 2 === 0 ? 'eng' : 'ru', capscount % 2  === 0 ? 'caps' : 'reg');
     count++;
-  };
+  }
   if (event.key === 'Shift') {
     putLetters(count % 2 === 0 ? 'eng' : 'ru', capscount % 2 === 0 ? 'shiftcaps' : 'shift');
-  };
+  }
   if (event.key === 'CapsLock') {
     capscount++;
     putLetters(count % 2 === 0 ? 'eng' : 'ru', capscount % 2 === 0 ? 'caps' : 'reg');
-  };
+  }
   if (event.key === 'Tab') {
     event.preventDefault();
     TEXT_AREA.value += '\t';
-  };
+  }
   if (event.key === 'Backspace') {
     if (!event.isTrusted) {
       const pos = TEXT_AREA.selectionStart;
@@ -142,7 +150,7 @@ document.addEventListener('keydown', function(event) {
         TEXT_AREA.selectionEnd = pos - 1;
       }
     }
-  };
+  }
   if (event.key === 'Delete') {
     if (!event.isTrusted) {
       const pos = TEXT_AREA.selectionStart;
@@ -151,23 +159,21 @@ document.addEventListener('keydown', function(event) {
         TEXT_AREA.selectionEnd = pos;
       }
     }
-  };
+  }
   if (event.key === 'ArrowLeft' && !event.isTrusted) {
     TEXT_AREA.selectionEnd = TEXT_AREA.selectionStart > 0 ? TEXT_AREA.selectionEnd - 1 : 0
-  };
+  }
   if (event.key === 'ArrowRight' && !event.isTrusted) {
     TEXT_AREA.selectionStart = TEXT_AREA.selectionStart + 1
-  };
+  }
   if (event.key === 'ArrowUp' && !event.isTrusted) {
     if (TEXT_AREA.selectionStart > 0) {
-      TEXT_AREA.selectionEnd -= Math.floor(TEXT_AREA.value.length / TEXT_AREA.value.split('').filter((val) => val === '\n').length)
-      //TEXT_AREA.selectionEnd -= TEXT_AREA.value.indexOf('\n') !== -1 ?
+      TEXT_AREA.selectionEnd -= Math.floor(TEXT_AREA.value.length / TEXT_AREA.value.split('').filter((val) => val === '\n').length);
     }
-  };
+  }
   if (event.key === 'ArrowDown' && !event.isTrusted) {
-    TEXT_AREA.selectionStart += Math.floor(TEXT_AREA.value.length / TEXT_AREA.value.split('').filter((val) => val === '\n').length)
-    //TEXT_AREA.selectionStart = TEXT_AREA.value.indexOf('\n') !== -1 ? (TEXT_AREA.value.indexOf('\n', TEXT_AREA.value.indexOf('\n')) <= TEXT_AREA.selectionStart + TEXT_AREA.value.indexOf('\n') ? TEXT_AREA.selectionStart + TEXT_AREA.value.indexOf('\n') : TEXT_AREA.value.indexOf('\n', TEXT_AREA.value.indexOf('\n'))) : TEXT_AREA.value.length
-  };
+    TEXT_AREA.selectionStart += Math.floor(TEXT_AREA.value.length / TEXT_AREA.value.split('').filter((val) => val === '\n').length);
+  }
   selectBtn(event.code);
 });
 
@@ -177,7 +183,7 @@ function setLocalStorage() {
 }
 
 function getLocalStorage() {
-  if (!!localStorage.getItem('lang')) {
+  if (localStorage.getItem('lang')) {
     putLetters(localStorage.getItem('lang'), localStorage.getItem('layout'));
     if (localStorage.getItem('layout') === 'caps') {
       selectBtn('CapsLock');
@@ -274,6 +280,7 @@ CONTAINER.addEventListener('mousedown', (ev) => {
   if (ev.target.getAttribute('code')) {
     keyPressAudio.play();
     selectBtn(ev.target.getAttribute('code'));
+    addButtonAnimation(ev.target);
     if (ev.target.classList.contains('changing-btn')) {
       TEXT_AREA.value += ev.target.innerHTML;
     } else if (ev.target.classList.contains('keySpace')) {
@@ -340,6 +347,7 @@ CONTAINER.addEventListener('mousedown', (ev) => {
 CONTAINER.addEventListener('mouseup', (ev) => {
   if (ev.target.getAttribute('code')) {
     unselectBtn(ev.target.getAttribute('code'));
+    removeButtonAnimation(ev.target);
   }
   if (ev.target.classList.contains('keyShift')) {
     document.dispatchEvent(new KeyboardEvent('keyup', {
@@ -400,4 +408,16 @@ function showInfo() {
     document.body.querySelector('.info-cont').remove();
     HELP_CONT.classList.remove('rotate');
   }, 3000)
+}
+
+function addButtonAnimation(btn) {
+  if (btn.classList.contains('line__btn')) {
+    btn.classList.add('btn_animate')
+  }
+}
+
+function removeButtonAnimation(btn) {
+  if (btn.classList.contains('line__btn')) {
+    btn.classList.remove('btn_animate')
+  }
 }
